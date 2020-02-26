@@ -1,0 +1,14 @@
+﻿<h3>It is currently @CurrTime on @CurrDate</h3>
+
+@code {
+
+    public string CurrTime { get; set; }
+
+    public string CurrDate { get; set; }
+
+    protected override void OnInitialized()
+    {
+        CurrTime = DateTime.Now.ToShortTimeString();
+        CurrDate = DateTime.Now.ToLongDateString();
+    }
+}
