@@ -10,6 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BlazorAppTutorial.Data;
+using BlazorAppTutorial.DAL;
+using Microsoft.EntityFrameworkCore;
+using BlazorAppTutorial.Models;
+using CHHS.Common.Core.Data.Interfaces;
 
 namespace BlazorAppTutorial
 {
@@ -30,6 +34,11 @@ namespace BlazorAppTutorial
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<TodoItem>();
+            services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+
+            services.AddDbContext<BlazorAppTutorialContext>(options =>
+                options.UseLazyLoadingProxies()
+                    .UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
