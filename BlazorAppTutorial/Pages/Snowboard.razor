@@ -1,0 +1,123 @@
+﻿@page "/snowboard"
+
+@using CHHS.Common.Core.Data.Interfaces
+
+@inject IRepository<Models.Snowboard> _snowboardRepository
+
+<h3>Snowboards</h3>
+
+<div class="col-6">
+    <table class="table table-striped">
+        <tr>
+            <th>Model</th>
+            <th>Size</th>
+            <th>Brand</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        @foreach (Models.Snowboard snowboard in snowboards)
+        {
+            <tr>
+                <td>@snowboard.Model</td>
+                <td>@snowboard.Size</td>
+                <td>@snowboard.Brand</td>
+                <td><button class="btn btn-info" @onclick="(() => EditSnowboard(snowboard))">Edit</button></td>
+                <td><button class="btn btn-danger" @onclick="(() => DeleteSnowboard(snowboard))">Delete</button></td>
+            </tr>
+        }
+    </table>
+    @if (!ShowPopup)
+    {
+        <h3>Add another snowboard</h3>
+        <EditForm Model="@_snowboardModel" OnValidSubmit="CreateSnowboard">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <label>Model</label>
+            <InputText id="model" @bind-Value="_snowboardModel.Model" />
+            <label>Size</label>
+            <InputNumber id="size" @bind-Value="_snowboardModel.Size" />
+            <label>Brand</label>
+            <InputText id="brand" @bind-Value="_snowboardModel.Brand" />
+
+            <button type="submit">Submit</button>
+        </EditForm>
+    }
+    </div>
+
+@if (ShowPopup)
+{
+    <!-- This is the popup to create or edit a forecast -->
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edit Forecast</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                            @onclick="ClosePopup">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <EditForm Model="@_snowboardModel" OnValidSubmit="EditSnowboard">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <label>Model</label>
+                    <InputText id="model" @bind-Value="_snowboardModel.Model" />
+                    <label>Size</label>
+                    <InputNumber id="size" @bind-Value="_snowboardModel.Size" />
+                    <label>Brand</label>
+                    <InputText id="brand" @bind-Value="_snowboardModel.Brand" />
+
+                    <button type="submit">Submit</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+@code {
+    private bool ShowPopup = false;
+    private List<Models.Snowboard> snowboards;
+    private Models.Snowboard _snowboardModel = new Models.Snowboard();
+
+    protected override void OnInitialized()
+    {
+        snowboards = _snowboardRepository.AllQueryable().ToList();
+    }
+
+    private void ClosePopup()
+    {
+        ShowPopup = false;
+    }
+
+    private void CreateSnowboard()
+    {
+        _snowboardRepository.Add(_snowboardModel);
+        _snowboardModel = new Models.Snowboard();
+        snowboards = _snowboardRepository.AllQueryable().ToList();
+    }
+
+    private void EditSnowboard(Models.Snowboard snowboard)
+    {
+        _snowboardModel = snowboard;
+        ShowPopup = true;
+    }
+    private void EditSnowboard()
+    {
+        _snowboardRepository.Update(_snowboardModel);
+        _snowboardModel = new Models.Snowboard();
+        ShowPopup = false;
+        snowboards = _snowboardRepository.AllQueryable().ToList();
+    }
+
+    private void DeleteSnowboard(Models.Snowboard snowboard)
+    {
+        if (snowboard != null)
+        {
+            _snowboardRepository.Delete(snowboard);
+        }
+        snowboards = _snowboardRepository.AllQueryable().ToList();
+    }
+}
+
